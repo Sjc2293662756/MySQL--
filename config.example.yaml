@@ -1,0 +1,84 @@
+servers:
+  - name: mysql-238
+    host: 101.254.114.238
+    port: 3306
+    user: traffic_user
+    password: "replace-with-password"
+    charset: utf8mb4
+    # Plaintext test traffic for SPAN-based SQL inspection.
+    ssl_disabled: true
+    connect_timeout: 5
+    reconnect:
+      enabled: true
+      interval_seconds: 5
+      max_retries: 0
+  # Add one item for each server. The same user can be used where credentials match.
+  # - name: mysql-secondary
+  #   host: 192.0.2.20
+  #   port: 3306
+  #   user: traffic_user
+  #   password: "replace-with-password"
+  #   ssl_disabled: true
+
+tables:
+  exclude: []
+
+traffic:
+  workers: 3
+  mode: interval
+  interval:
+    min: 1
+    max: 3
+  qps: 5
+  random_burst:
+    enabled: false
+    probability: 0.05
+    multiplier: 3
+    duration_seconds: 10
+
+query:
+  limit_values: [1, 5, 10, 20, 50]
+  weights:
+    simple_select: 40
+    primary_key: 20
+    count: 10
+    order_by: 15
+    where: 15
+  enable_count: true
+  count_max_estimated_rows: 100000
+  max_execution_time_ms: 3000
+
+transactions:
+  enabled: true
+  min_queries: 2
+  max_queries: 3
+
+test_sandbox:
+  database_prefix: codex_traffic_test_
+  seed_rows: 20
+  traffic_probability: 0.25
+  operation_weights:
+    select: 25
+    insert: 25
+    update: 25
+    delete: 25
+
+table_weights: {}
+
+logging:
+  level: INFO
+  console: true
+  file:
+    enabled: true
+    path: logs/traffic.log
+    max_size_mb: 100
+    backups: 5
+  jsonl:
+    enabled: true
+    path: logs/traffic.jsonl
+    max_size_mb: 100
+    backups: 5
+
+stats:
+  enabled: true
+  interval_seconds: 10

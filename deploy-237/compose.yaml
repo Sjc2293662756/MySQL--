@@ -1,0 +1,46 @@
+name: mysql-traffic-generator
+
+services:
+  traffic:
+    image: mysql-traffic-generator:1.0.4
+    command: ["--config", "/app/config.yaml", "--test-crud"]
+    container_name: mysql-traffic-generator
+    pull_policy: never
+    user: "10001:1000"
+    init: true
+    restart: unless-stopped
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges
+    stop_signal: SIGINT
+    stop_grace_period: 30s
+    environment:
+      TZ: CST-8
+    labels:
+      com.netinside.mysql-traffic-generator.managed: "true"
+      com.netinside.mysql-traffic-generator.service-dir: /home/netinside/docker-images/mysql-traffic-generator/service
+    volumes:
+      - type: bind
+        source: ./config.yaml
+        target: /app/config.yaml
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./logs
+        target: /app/logs
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./DOCKER_USAGE.md
+        target: /app/DOCKER_USAGE.md
+        read_only: true
+        bind:
+          create_host_path: false
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

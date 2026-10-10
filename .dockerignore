@@ -1,0 +1,14 @@
+# Send only the files needed to build the image.
+**
+!Dockerfile
+!.dockerignore
+!requirements.txt
+!traffic.py
+!config.example.yaml
+!src/
+!src/**
+
+# Exclude generated files even inside src/.
+**/__pycache__/
+**/*.pyc
+**/*.pyo
